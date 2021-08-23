@@ -37,27 +37,29 @@ F4_ImplicitMap(Application_Links *app, String_ID lang, String_ID mode, Input_Eve
     
     View_ID view = get_this_ctx_view(app, Access_Always);
     
-	Command_Map_ID orig_id = default_get_map_id(app, view);
+    Command_Map_ID orig_id = default_get_map_id(app, view);
     Command_Map_ID map_id = orig_id;
-	if(GlobalKeybindingMode == KeyBindingMode_1)
-	{
-		for(int PairIndex = 0;
-			PairIndex < ArrayCount(GlobalCommandMapReroute);
-			++PairIndex)
-		{
-			if(GlobalCommandMapReroute[PairIndex].From == map_id)
-			{
-				map_id = GlobalCommandMapReroute[PairIndex].To;
-				break;
-			}
-		}
-	}
-	
-	Command_Binding binding = map_get_binding_recursive(&framework_mapping, map_id, event);
-	if(!binding.custom)
-	{
-		binding = map_get_binding_recursive(&framework_mapping, orig_id, event);
-	}
+    if(GlobalKeybindingMode == KeyBindingMode_1)
+    {
+        for(int PairIndex = 0;
+            PairIndex < ArrayCount(GlobalCommandMapReroute);
+            ++PairIndex)
+        {
+            if(GlobalCommandMapReroute[PairIndex].From == map_id)
+            {
+                map_id = GlobalCommandMapReroute[PairIndex].To;
+                break;
+            }
+        }
+    }
+    
+    
+    Command_Binding binding = map_get_binding_recursive(&framework_mapping, map_id, event);
+    
+    if(!binding.custom)
+    {
+        binding = map_get_binding_recursive(&framework_mapping, orig_id, event);
+    }
     
     // TODO(allen): map_id <-> map name?
     result.map = 0;
@@ -76,13 +78,13 @@ F4_SetAbsolutelyNecessaryBindings(Mapping *mapping)
     String_ID file_map_id = vars_save_string_lit("keys_file");
     String_ID code_map_id = vars_save_string_lit("keys_code");
     
-	String_ID global_command_map_id = vars_save_string_lit("keys_global_1");
-	String_ID file_command_map_id = vars_save_string_lit("keys_file_1");
+    String_ID global_command_map_id = vars_save_string_lit("keys_global_1");
+    String_ID file_command_map_id = vars_save_string_lit("keys_file_1");
     String_ID code_command_map_id = vars_save_string_lit("keys_code_1");
     
-	implicit_map_function = F4_ImplicitMap;
-	
-	MappingScope();
+    implicit_map_function = F4_ImplicitMap;
+    
+    MappingScope();
     SelectMapping(mapping);
     
     SelectMap(global_map_id);
@@ -94,7 +96,9 @@ F4_SetAbsolutelyNecessaryBindings(Mapping *mapping)
     
     SelectMap(file_map_id);
     ParentMap(global_map_id);
+    
     BindTextInput(fleury_write_text_input);
+    
     BindMouse(click_set_cursor_and_mark, MouseCode_Left);
     BindMouseRelease(click_set_cursor, MouseCode_Left);
     BindCore(click_set_cursor_and_mark, CoreCode_ClickActivateView);
@@ -107,19 +111,19 @@ F4_SetAbsolutelyNecessaryBindings(Mapping *mapping)
     BindMouse(f4_lego_click_store_token_2, MouseCode_Middle);
     
     SelectMap(global_command_map_id);
-	ParentMap(global_map_id);
-	GlobalCommandMapReroute[0].From = global_map_id;
-	GlobalCommandMapReroute[0].To = global_command_map_id;
-	
+    ParentMap(global_map_id);
+    GlobalCommandMapReroute[0].From = global_map_id;
+    GlobalCommandMapReroute[0].To = global_command_map_id;
+    
     SelectMap(file_command_map_id);
-	ParentMap(global_command_map_id);
-	GlobalCommandMapReroute[1].From = file_map_id;
-	GlobalCommandMapReroute[1].To = file_command_map_id;
-	
+    ParentMap(global_command_map_id);
+    GlobalCommandMapReroute[1].From = file_map_id;
+    GlobalCommandMapReroute[1].To = file_command_map_id;
+    
     SelectMap(code_command_map_id);
-	ParentMap(file_command_map_id);
-	GlobalCommandMapReroute[2].From = code_map_id;
-	GlobalCommandMapReroute[2].To = code_command_map_id;
+    ParentMap(file_command_map_id);
+    GlobalCommandMapReroute[2].From = code_map_id;
+    GlobalCommandMapReroute[2].To = code_command_map_id;
     
 }
 
@@ -179,39 +183,50 @@ F4_SetDefaultBindings(Mapping *mapping)
         Bind(open_panel_vsplit, KeyCode_P, KeyCode_Control);
         Bind(open_panel_hsplit, KeyCode_Minus, KeyCode_Control);
         Bind(close_panel, KeyCode_P, KeyCode_Control, KeyCode_Shift);
+        
         Bind(f4_search_for_definition__project_wide, KeyCode_J, KeyCode_Control);
         Bind(f4_search_for_definition__current_file, KeyCode_J, KeyCode_Control, KeyCode_Shift);
+        
         Bind(fleury_toggle_battery_saver, KeyCode_Tick, KeyCode_Alt);
+        
         Bind(move_right_token_boundary, KeyCode_Right, KeyCode_Shift, KeyCode_Control);
         Bind(move_left_token_boundary, KeyCode_Left, KeyCode_Shift, KeyCode_Control);
     }
     
     SelectMap(file_map_id);
     ParentMap(global_map_id);
+    
     Bind(delete_char,            KeyCode_Delete);
     Bind(backspace_char,         KeyCode_Backspace);
+    
     Bind(move_up,                KeyCode_Up);
     Bind(move_down,              KeyCode_Down);
     Bind(move_left,              KeyCode_Left);
     Bind(move_right,             KeyCode_Right);
+    
     Bind(seek_end_of_line,       KeyCode_End);
     Bind(fleury_home,            KeyCode_Home);
     Bind(page_up,                KeyCode_PageUp);
     Bind(page_down,              KeyCode_PageDown);
     Bind(goto_beginning_of_file, KeyCode_PageUp, KeyCode_Control);
     Bind(goto_end_of_file,       KeyCode_PageDown, KeyCode_Control);
+    
     Bind(move_up_to_blank_line_end,        KeyCode_Up, KeyCode_Control);
     Bind(move_down_to_blank_line_end,      KeyCode_Down, KeyCode_Control);
     Bind(move_left_whitespace_boundary,    KeyCode_Left, KeyCode_Control);
     Bind(move_right_whitespace_boundary,   KeyCode_Right, KeyCode_Control);
     Bind(move_line_up,                     KeyCode_Up, KeyCode_Alt);
     Bind(move_line_down,                   KeyCode_Down, KeyCode_Alt);
+    
     Bind(backspace_alpha_numeric_boundary, KeyCode_Backspace, KeyCode_Control);
     Bind(delete_alpha_numeric_boundary,    KeyCode_Delete, KeyCode_Control);
+    
     Bind(snipe_backward_whitespace_or_token_boundary, KeyCode_Backspace, KeyCode_Alt);
     Bind(snipe_forward_whitespace_or_token_boundary,  KeyCode_Delete, KeyCode_Alt);
+    
     Bind(set_mark,                    KeyCode_Space, KeyCode_Control);
     Bind(replace_in_range,            KeyCode_A, KeyCode_Control);
+    
     Bind(copy,                        KeyCode_C, KeyCode_Control);
     Bind(delete_range,                KeyCode_D, KeyCode_Control);
     Bind(delete_line,                 KeyCode_D, KeyCode_Control, KeyCode_Shift);

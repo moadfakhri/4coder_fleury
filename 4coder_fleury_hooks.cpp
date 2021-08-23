@@ -342,6 +342,17 @@ F4_DrawFileBar(Application_Links *app, View_ID view_id, Buffer_ID buffer, Face_I
     Buffer_Cursor cursor = view_compute_cursor(app, view_id, seek_pos(cursor_position));
     
     Fancy_Line list = {};
+    
+#if MODAL_BUILD == 1
+    
+    // NOTE(fakhri): mode indicator
+    String_ID       current_mapid  = (String_ID) *get_current_mapid_ptr(app);
+    String_Const_u8 mode_indicator = modal_get_mode_as_string(current_mapid);
+    push_fancy_string(scratch, &list, base_color, mode_indicator);
+    
+#endif
+    
+    
     String_Const_u8 unique_name = push_buffer_unique_name(app, scratch, buffer);
     push_fancy_string(scratch, &list, base_color, unique_name);
     push_fancy_stringf(scratch, &list, base_color, " - Row: %3.lld Col: %3.lld -", cursor.line, cursor.col);
@@ -684,10 +695,14 @@ function BUFFER_HOOK_SIG(F4_BeginBuffer)
         }
     }
     
+#if MODAL_BUILD == 0
     String_ID file_map_id = vars_save_string_lit("keys_file");
     String_ID code_map_id = vars_save_string_lit("keys_code");
-    
     Command_Map_ID map_id = (treat_as_code) ? (code_map_id) : (file_map_id);
+#else
+    Command_Map_ID map_id = modal_normal_map_id;
+#endif
+    
     Managed_Scope scope = buffer_get_managed_scope(app, buffer_id);
     Command_Map_ID *map_id_ptr = scope_attachment(app, scope, buffer_map_id, Command_Map_ID);
     *map_id_ptr = map_id;

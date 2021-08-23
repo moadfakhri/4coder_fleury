@@ -401,6 +401,13 @@ typedef int socklen_t;
 #define COMMAND_SERVER_UPDATE_PERIOD_MS 200
 #define COMMAND_SERVER_AUTO_LAUNCH_IF_FILE_PRESENT "project_namespaces.txt"
 
+//~// NOTE(fakhri): modal stuff
+#define MODAL_BUILD 1
+
+#if MODAL_BUILD == 1
+#include "4coder_fleury_modal.cpp"
+#endif
+
 //~ NOTE(rjf): @f4_headers
 #include "4coder_fleury_ubiquitous.h"
 #include "4coder_fleury_audio.h"
@@ -484,13 +491,22 @@ void custom_layer_init(Application_Links *app)
     {
         Thread_Context *tctx = get_thread_context(app);
         mapping_init(tctx, &framework_mapping);
+        
+#if MODAL_BUILD == 0
         String_Const_u8 bindings_file = string_u8_litexpr("bindings.4coder");
-        F4_SetAbsolutelyNecessaryBindings(&framework_mapping);
         if(!dynamic_binding_load_from_file(app, &framework_mapping, bindings_file))
         {
             F4_SetDefaultBindings(&framework_mapping);
         }
+#endif
+        
+        F4_SetDefaultBindings(&framework_mapping);
         F4_SetAbsolutelyNecessaryBindings(&framework_mapping);
+        
+#if MODAL_BUILD == 1
+        F4_set_modal_bindings(&framework_mapping);
+#endif
+        
     }
     
     // NOTE(rjf): Set up custom code index.

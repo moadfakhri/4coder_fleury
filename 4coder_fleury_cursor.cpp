@@ -11,6 +11,7 @@ enum Cursor_Type
 	cursor_insert,
 	cursor_open_range,
 	cursor_close_range,
+    
 };
 
 function void
@@ -80,6 +81,7 @@ C4_RenderCursorSymbolThingy(Application_Links *app, Rect_f32 rect,
 		side.y1 = rect.y1;
         
 		draw_rectangle(app, side, roundness, color);
+        
 	}
 }
 
@@ -198,9 +200,12 @@ F4_Cursor_RenderEmacsStyle(Application_Links *app, View_ID view_id, b32 is_activ
 				mark_type = cursor_none;
 			}
             
+#if MODAL_BUILD == 1
+            b32 is_normal = !is_insert_mode(app);
+#endif
+            
             Rect_f32 target_cursor = text_layout_character_on_screen(app, text_layout_id, cursor_pos);
             Rect_f32 target_mark = text_layout_character_on_screen(app, text_layout_id, mark_pos);
-			
             // NOTE(rjf): Draw cursor.
             {
                 if(is_active_view)
@@ -236,9 +241,32 @@ F4_Cursor_RenderEmacsStyle(Application_Links *app, View_ID view_id, b32 is_activ
                 }
                 
                 // NOTE(rjf): Draw main cursor.
+                
                 {
-                    C4_RenderCursorSymbolThingy(app, global_cursor_rect, roundness, 4.f, cursor_color, cursor_type);
-					C4_RenderCursorSymbolThingy(app, target_cursor, roundness, 4.f, cursor_color, cursor_type);
+#if MODAL_BUILD == 1
+                    if (is_normal)
+                    {
+                        {
+                            f32 margin = 1.f;
+                            Rect_f32 side;
+                            side.x0 = global_cursor_rect.x0 - margin;
+                            side.x1 = global_cursor_rect.x1 + margin;
+                            side.y0 = global_cursor_rect.y0 - margin;
+                            side.y1 = global_cursor_rect.y1 + margin;
+                            draw_rectangle_outline(app, side, 0.f, 2.0f, cursor_color);
+                        }
+                        draw_character_block(app, text_layout_id, cursor_pos, roundness,
+                                             cursor_color);
+                        paint_text_color_pos(app, text_layout_id, cursor_pos,
+                                             fcolor_id(defcolor_at_cursor));
+                    }
+                    else
+#endif
+                    {
+                        C4_RenderCursorSymbolThingy(app, global_cursor_rect, roundness, 4.f, cursor_color, cursor_type);
+                        C4_RenderCursorSymbolThingy(app, target_cursor, roundness, 4.f, cursor_color, cursor_type);
+                    }
+                    
                 }
                 
                 // NOTE(rjf): GLOW IT UP
@@ -265,10 +293,24 @@ F4_Cursor_RenderEmacsStyle(Application_Links *app, View_ID view_id, b32 is_activ
             
             // paint_text_color_pos(app, text_layout_id, cursor_pos,
             // fcolor_id(defcolor_at_cursor));
-            C4_RenderCursorSymbolThingy(app, global_mark_rect, roundness, 2.f,
-                                        fcolor_resolve(fcolor_change_alpha(fcolor_argb(mark_color), 0.5f)), mark_type);
-			C4_RenderCursorSymbolThingy(app, target_mark, roundness, 2.f,
-                                        fcolor_resolve(fcolor_change_alpha(fcolor_argb(mark_color), 0.75f)), mark_type);
+            
+#if MODAL_BUILD == 1
+            if (is_normal)
+            {
+                draw_character_wire_frame(app, text_layout_id, mark_pos,
+                                          roundness, outline_thickness,
+                                          mark_color);
+            }
+            else
+#endif
+            {
+                C4_RenderCursorSymbolThingy(app, global_mark_rect, roundness, 2.f,
+                                            fcolor_resolve(fcolor_change_alpha(fcolor_argb(mark_color), 0.5f)), mark_type);
+                C4_RenderCursorSymbolThingy(app, target_mark, roundness, 2.f,
+                                            fcolor_resolve(fcolor_change_alpha(fcolor_argb(mark_color), 0.75f)), mark_type);
+            }
+            /*C4_RenderCursorSymbolThingy(app, target_mark, roundness, 2.f,
+                                        fcolor_resolve(fcolor_change_alpha(fcolor_argb(mark_color), 0.75f)), mark_type);*/
         }
     }
     
