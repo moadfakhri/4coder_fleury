@@ -235,6 +235,7 @@ CUSTOM_DOC("activates 'delete' mode.") {
 CUSTOM_COMMAND_SIG(delete_line_and_switch_to_normal_mode)
 CUSTOM_DOC("delete the lin under the cursor and then switch back to normal mode.") {
     copy_line(app);
+    move_right(app);
     delete_line(app);
     modal_set_mode_normal(app);
 }
@@ -438,6 +439,7 @@ F4_set_Normal_mode_bindings(Mapping *mapping)
     Bind(if_read_only_goto_position,            KeyCode_Return);
     Bind(if_read_only_goto_position_same_panel, KeyCode_Return, KeyCode_Shift);
     Bind(change_active_panel, KeyCode_Tab);
+    Bind(swap_panels, KeyCode_Tab, KeyCode_Shift);
     //Bind(view_jump_list_with_lister,  KeyCode_Period, KeyCode_Control, KeyCode_Shift);
     
     // NOTE(fakhri): transition to other modes
